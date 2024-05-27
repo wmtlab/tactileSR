@@ -1,0 +1,8 @@
+# torch>1.6
+# pip install -r cpu/requirements.txt 
+numpy
+pyyaml
+tabulate
+termcolor
+tensorboard
+protobuf~=3.19.0
