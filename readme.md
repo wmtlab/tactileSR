@@ -1,15 +1,13 @@
-## 创建 docker container
+# Integrating Point Spread Function into Taxel-based Tactile Pattern Super Resolution
 
-## 各种环境报错。
-1. `ImportError: libGL.so.1: cannot open shared object file: No such file or directory`
+This repository contains the dataset and implementation of our [Integrating Point Spread Function into Taxel-based Tactile Pattern Super Resolution, IEEE Transactions on Haptics 2024 ](https://ieeexplore.ieee.org/abstract/document/10452829) paper.
 
-```bash
-apt-get update
-apt-get install ffmpeg libsm6 libxext6  -y
-```
+***Integrating Point Spread Function into Taxel-based Tactile Pattern Super Resolution***
 
-TODO: 在 dockerfile 中增加下面部分
-```bash
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-```
+Bing Wu and Qian Liu
+
+Dalian University of Technology
+
+****
+
 

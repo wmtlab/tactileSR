@@ -8,3 +8,5 @@ out/
 *.png
 *.pth
 *.npy
+
+note.md

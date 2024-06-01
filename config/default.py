@@ -9,12 +9,12 @@ common_config = {
     'root_path'    : root_path,
     'random_seed'  : 42,
     'deterministic': False,
+    'scale_num'    : 100,
 }
 
 tPSFNet_config = {
     'train_batch_size'      : 256,
     'test_batch_size'       : 8,
-    'scale_num'             : 100,
     'gama'                  : 1.4,
     'perception_scale'      : None,
     'loss_scale'            : 1e-1,
@@ -26,8 +26,8 @@ tPSFNet_config = {
     'epochs'                : 51,
     'sample_cnt'            : 32,
     'dataset_dir'           : os.path.join(root_path, 'data/rotateDataset'),
-    'save_dir'              : os.path.join(root_path, 'pth/tPSFNet'),
-    'is_aug_data'           : True,
+    'save_dir'              : os.path.join(root_path, 'pth/tPSFNet_no_aug'),
+    'is_aug_data'           : False,
     
     ## TODO: lr warmup param
     'warmup_t'       : 1,
@@ -47,21 +47,37 @@ tPSFNet_config = {**common_config, **tPSFNet_config}
 
 
 tactileSR_config = {
-    'train_batch_size'           : 4,
-    'test_batch_size'            : 1,
-    'lr'                         : 1e-1,
-    'weight_decay'               : 1e-1,
-    'lr_scheduler_step_size'     : 1,
-    'lr_scheduler_gamma'         : 0.8,
-    'HR_scale_num'               : 10,
-    'sensorMaxVaule_factor'      : 250,       # calucate the PSNR, maxVaule = sensorMaxVaule_factor /  HR_scale_num
-    'epochs'                     : 101,
+    'train_batch_size'      : 32,
+    'test_batch_size'       : 8,
+    'lr'                    : 1e-2,
+    'weight_decay'          : 1e-1,
+    'lr_scheduler_step_size': 2,
+    'lr_scheduler_gamma'    : 0.8,
+    'checkpoint_period'     : 1,
+    'HR_scale_num'          : 10,
+    'sensorMaxVaule_factor' : 250,  # calucate the PSNR, maxVaule = sensorMaxVaule_factor /  HR_scale_num
+    'epochs'                : 101,
+
+    
     'scale_factor'               : 10,
+    'seqsCnt'                    : 1,
+    'axisCnt'                    : 3,
     'patternFeatureExtraLayerCnt': 6,
+    'forceFeatureExtraLayerCnt'  : 1,
+    
+    'save_dir'         : os.path.join(root_path, 'pth/tactileSR_single'),
+    'train_dataset_dir': os.path.join(root_path, 'data/SRdataset/SRdataset_validation.npy'),
+    'test_dataset_dir' : os.path.join(root_path, 'data/SRdataset/SRdataset_test.npy'),
+    'val_dataset_dir'  : os.path.join(root_path, 'data/SRdataset/SRdataset_validation.npy'),
 
 }
 
 tactileSR_config = {**common_config, **tactileSR_config}
 
 
-
+# TODO: change to another file
+# GPU management
+from utility.tools import select_gpu_with_least_used_memory, test_gpu
+gpu_idx, device, _, _ = select_gpu_with_least_used_memory()
+print(f"Selected GPU Index:{gpu_idx}, device:{device}") 
+os.environ["CUDA_VISIBLE_DEVICES"] = '0, 1'

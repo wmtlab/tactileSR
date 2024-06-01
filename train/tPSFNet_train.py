@@ -17,19 +17,14 @@ import matplotlib.gridspec as gridspec
 ROOT_PATH = "/code"
 sys.path.append(ROOT_PATH)
 from cpu import ConfigArgumentParser, Trainer, save_args, set_random_seed, setup_logger
-from cpu import InferenceHook, EvalHook, HookBase
+from cpu import EvalHook, HookBase
 from cpu.trainer import Trainer
 from cpu.misc import set_random_seed
 
-from config.default import tPSFNet_config, root_path
+from config.default import tPSFNet_config, root_path, device
 from model.tPSFNet import tPSFNet
 from utility.load_tactile_dataset import tPSFNetDataSet, singleTapSeqsDataset
-from utility.tools import select_gpu_with_least_used_memory, test_gpu
 from utility.tools import calculationSSIM 
-
-gpu_idx, device, _, _ = select_gpu_with_least_used_memory()
-print(f"Selected GPU Index:{gpu_idx}, device:{device}") 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0, 1'
 
 
 def build_dataloader(config):
@@ -172,9 +167,8 @@ class InferenceHook_tPSF(HookBase):
         else:
             plt.savefig(save_name)
         plt.close()
-        del fig
-        
-        
+        del fig        
+   
         
 class Trainer_tPSF(Trainer):
     def __init__(self, scale_num, *args, **kwargs):
