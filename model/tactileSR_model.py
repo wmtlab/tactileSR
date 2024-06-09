@@ -20,11 +20,6 @@ class TactileSR(nn.Module):
     STSR, MTSR, ToH 2024
     """
     def __init__(self, scale_factor=10, seqsCnt=1, axisCnt=3, patternFeatureExtraLayerCnt=6, forceFeatureExtraLayerCnt=1):
-        """ 
-        scale_factor: 缩放因子
-        seqsCnt     : 输入的seqs数目
-        patternFeatureExtraLayerCnt: pattern 特征提取的层数
-        """
         super(TactileSR, self).__init__()
         self.taxel_cnt = 4             # Xela tactile sensor has 4x4 taxel unit
         self.scale_factor = scale_factor

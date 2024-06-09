@@ -60,10 +60,6 @@ class TactileSRDataset_seq(Dataset):
 
 
 class singleTapSeqsDataset(Dataset):
-    """ 
-        一次tapping过程采集的数据.
-        这些数据Depth 都是一样的
-    """
     def __init__(self, dataset_file, is_sample_idx=6, sample_cnt=10):
         self.dataset = loadRawDataset(dataset_file, sample_cnt=sample_cnt, is_sample_idx=is_sample_idx)
 

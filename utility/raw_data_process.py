@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""  原始数据处理。
+""" 
 @author: Wu Bing
 @date : 2022/10/17
 """
@@ -10,19 +10,9 @@ import numpy as np
 from tqdm import tqdm
 import cv2
 
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-# from config.default import data_process_config
-
-""" 
-每个接触面有 3x3 个不同位置, 4 (0 deg, 30 deg, 60 deg, 90 deg) 中不同的接触角度. 共有 36 种不同的位姿
-
-tPSFNet 训练的数据集: 每个接触面只选择一种位置 idx=16.
-tSRNet  训练的数据集: 所有
-"""
-
 
 def getContactTactileSeqs(tactile_LRs, theshold_scale=0.1, sample_count=-1):
-    """ 返回满足阈值的触觉序列
+    """ 
     Arg:
         tactile_LRs: (seqs, 48)
     Return:
@@ -32,8 +22,6 @@ def getContactTactileSeqs(tactile_LRs, theshold_scale=0.1, sample_count=-1):
     """
     ret_LR_x, ret_LR_y, ret_LR_z, ret_LR = [], [], [], []
     
-    
-    # 获取 最大压力值
     tactile_z_max, max_idx = 0, 0
     for i in range(tactile_LRs.shape[0]):
         LR = tactile_LRs[i, :].reshape(16,3)
@@ -42,7 +30,6 @@ def getContactTactileSeqs(tactile_LRs, theshold_scale=0.1, sample_count=-1):
             tactile_z_max = LR_z.sum()
             max_idx = i
     
-    # 获取满足 阈值的触觉序列
     for i in range(max_idx):
         LR = tactile_LRs[i, :].reshape(16,3)
         LR_x, LR_y, LR_z = LR[:, 0].reshape(4, 4), LR[:, 1].reshape(4, 4), LR[:, 2].reshape(4, 4)
@@ -51,15 +38,10 @@ def getContactTactileSeqs(tactile_LRs, theshold_scale=0.1, sample_count=-1):
             ret_LR_y.append(np.flip(LR_y, axis=0))
             ret_LR_z.append(np.flip(LR_z, axis=0))
             
-            # ret_LR_x.append(LR_x)
-            # ret_LR_y.append(LR_y)
-            # ret_LR_z.append(LR_z)
-            
             ret_LR.append([np.flip(LR_x, axis=0), np.flip(LR_y, axis=0), np.flip(LR_z, axis=0)])
                 
     ret_LR_x, ret_LR_y, ret_LR_z, ret_LR = np.array(ret_LR_x), np.array(ret_LR_y), np.array(ret_LR_z), np.array(ret_LR)
     
-    # 选择 sample_count 个 数据
     if sample_count > 0:
         sample_count = min(sample_count, ret_LR_z.shape[0])
         sample_idx = np.linspace(0, ret_LR_z.shape[0]-1, sample_count).astype(np.int16)
@@ -73,7 +55,6 @@ def depth2tactile(dataset):
     return dataset
 
 def augmentData(ret_dataset):
-    # TODO: 加高斯噪声
     aug_ret_dataset = []
     for data in ret_dataset:
         # original data
@@ -114,11 +95,6 @@ def augmentData(ret_dataset):
     return aug_ret_dataset
 
 def loadRawDataset(dataset_filepath, sample_cnt, is_sample_idx, idx_threshold_scale=0.3, depth_pixel=100, is_aug_data=False):
-    """ 加载原始数据
-        sample_cnt          : 整个tapping过程中, 选择几个frame
-        is_sample_idx       : 是否只选择特定 idx 的数据
-        idx_threshold_scale : 选取的最小frame是最大frame的倍数. 设值过小可能由于噪声的存在导致不准确
-    """
     dataset = []
     raw_data = np.load(dataset_filepath, allow_pickle=True)
     for data in raw_data:
@@ -150,13 +126,12 @@ def loadRawDataset(dataset_filepath, sample_cnt, is_sample_idx, idx_threshold_sc
         ret_dataset = dataset
     
     if is_aug_data:
-        ret_dataset = augmentData(ret_dataset)       # 数据增强
+        ret_dataset = augmentData(ret_dataset)
     return ret_dataset
 
 
 def loadSeqDataset_SR(dataset_filePath, sample_cnt, idx_threshold_scale=0.3, depth_pixel=100):
     """ 
-    不同的移动位置 + 不同的旋转角度
     -----------------------> y
     |   [ 0~ 3] [ 4~ 7] [ 8~11]
     |   [12~15] [16~19] [20~23]
@@ -165,7 +140,7 @@ def loadSeqDataset_SR(dataset_filePath, sample_cnt, idx_threshold_scale=0.3, dep
     x
     
     """
-    rotateCnt = 2              # 旋转需要的seqs
+    rotateCnt = 2 
     dataset = []
     raw_data = np.load(dataset_filePath, allow_pickle=True)
     print(len(raw_data))
@@ -222,49 +197,3 @@ if __name__ == "__main__":
     dataset_dir = root_path + '/data/rotateDataset/'
     file_path = dataset_dir + 'C.npy'
     loadRawDataset(dataset_filepath=file_path, sample_cnt=16, is_sample_idx=10)
-    
-    # [0, 6, 7, 8]
-    
-    """
-    all_dataset = []
-    print(root_path)
-    for root, ds, fs, in os.walk(dataset_dir):
-        for f in fs:
-            obj_name, suffix_dot = os.path.splitext(f)
-            if suffix_dot == '.npy':
-                dataset_file = dataset_dir + '/' + f
-                print(dataset_file)
-                dataset = loadSeqDataset_SR(dataset_filePath=dataset_file, sample_cnt=16)
-                all_dataset = all_dataset + dataset
-
-    print(len(all_dataset))
-    np.save(root_path + '/Dataset/SeqsDataset/' + 'seqs_rotate_2_depth.npy', all_dataset)
-    
-    os._exit(0)
-    """
-
-    # dataset = loadSeqDataset_SR(dataset_filePath=dataset_dir+'/P.npy', sample_cnt=16)
-
-    # import matplotlib.pyplot as plt
-    # fig = plt.figure(tight_layout=True)
-    # ax1 = fig.add_subplot(131)
-    # ax2 = fig.add_subplot(132)
-    # ax3 = fig.add_subplot(133)
-
-    # for data in dataset:
-    #     # data = data.item()
-    #     LR_0 = data['LR_0'] / 100
-    #     LR_1 = data['LR_1'] / 100
-    #     tactile_depth = data['depth']
-
-    #     LR_vmin, LR_vmax = 0, 12
-    #     HR_vmin, HR_vmax = 0, 1
-
-    #     # print(LR_1[2])
-    #     ax1.cla(), ax2.cla(), ax3.cla()
-
-    #     ax1.imshow(LR_0[2], vmin=LR_vmin, vmax=LR_vmax)
-    #     ax2.imshow(LR_1[2], vmin=LR_vmin, vmax=LR_vmax)
-    #     ax3.imshow(tactile_depth, vmin=HR_vmin, vmax=HR_vmax)
-
-    #     plt.savefig('out.png')
