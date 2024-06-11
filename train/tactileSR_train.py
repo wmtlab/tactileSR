@@ -64,10 +64,12 @@ def build_dataloader(config):
 
 
 def eval_func(model, test_loader, config):
+    seqsCnt        = config['seqsCnt']
+    axisCnt        = config['axisCnt']
     HR_scale_num   = config['HR_scale_num']
     sensorMaxVaule = config['sensorMaxVaule_factor']
     scale_factor   = config['scale_factor']
-    
+
     test_ave_loss, test_ave_ssim_loss, test_ave_psnr_loss = 0, 0, 0
     mse_loss_func = nn.MSELoss()
     
@@ -76,6 +78,7 @@ def eval_func(model, test_loader, config):
         LR, HR = LR.to(device), HR.to(device)
         LR, HR = LR.type(torch.float32), HR.type(torch.float32) / HR_scale_num
         HR = F.interpolate(HR, size=(4*scale_factor, 4*scale_factor), mode='bilinear', align_corners=False)
+        LR = LR[:, :seqsCnt*axisCnt]
         out = model(LR)
         
         mse_loss = mse_loss_func(out, HR)
@@ -145,7 +148,7 @@ class InferenceHook_tactileSR(HookBase):
         mse_loss_func = nn.MSELoss()
         
         model.eval()
-        LR, HR = test_loader.dataset[2000]
+        LR, HR = test_loader.dataset[0]
         if isinstance(LR, np.ndarray):
             LR, HR = torch.from_numpy(LR), torch.from_numpy(HR)
             LR, HR = LR.unsqueeze(0), HR.unsqueeze(0)

@@ -53,11 +53,9 @@ def model_param_init(singleSR_config,  seqsSR_config, seqsSR_model):
     singleSR_model.load_state_dict(checkpoint['model'], strict=False)
     singleSR_model = singleSR_model.to(device)
     
-    for input_layer in seqsSR_model.inputLayer_pattern_list:
-        input_layer = singleSR_model.inputLayer_pattern_list[0]
     seqsSR_model.patternFeatureExtra_layer = singleSR_model.patternFeatureExtra_layer
     seqsSR_model.forceFeatureExtra_layer   = singleSR_model.forceFeatureExtra_layer
-    seqsSR_model.output_layer              = singleSR_model.output_layer
+
     return seqsSR_model
     
 
@@ -86,11 +84,6 @@ def main(config):
                                 max_epochs        = config['epochs'],
                                 work_dir          = config['save_dir'],
                                 checkpoint_period = config['checkpoint_period'],
-                                ##  lr warmup param
-                                # warmup_t       = config['warmup_t'],
-                                # warmup_mode    = config['warmup_mode'],
-                                # warmup_init_lr = config['warmup_init_lr'],
-                                # warmup_factor  = config['warmup_factor'],
                                 )
     
     trainer.register_hooks([
@@ -101,8 +94,8 @@ def main(config):
         trainer.register_hooks([
             InferenceHook_tactileSR(test_loader, config),
         ])
-    print("@@@", model.scale_factor, model.seqsCnt, model.axisCnt)
-    # trainer.train(auto_resume=False)
+
+    trainer.train(auto_resume=False)
 
 
 if __name__ == "__main__":
