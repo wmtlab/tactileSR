@@ -10,3 +10,4 @@ out/
 *.npy
 
 note.md
+!data/rotateDataset/*.npy
